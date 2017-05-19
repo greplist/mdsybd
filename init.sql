@@ -1,0 +1,139 @@
+DROP TABLE images;
+DROP TABLE personalities;
+DROP TABLE taggings;
+DROP TABLE infografics;
+DROP TABLE places;
+DROP TABLE pages;
+DROP TABLE banners;
+DROP TABLE news;
+DROP TABLE contents;
+DROP TABLE content_formats;
+DROP TABLE categories;
+DROP TABLE tags;
+DROP TABLE users;
+
+CREATE TABLE users (
+	id INT PRIMARY KEY,
+	created_at TIMESTAMP DEFAULT SYSDATE NOT NULL,
+	updated_at TIMESTAMP DEFAULT SYSDATE NOT NULL,
+	name VARCHAR(128) NOT NULL,
+	email VARCHAR(128) NOT NULL,
+	role INT NOT NULL,
+	encrypted_password VARCHAR(256) NOT NULL,
+	CONSTRAINT name_uniq UNIQUE (name),
+	CONSTRAINT email_uniq UNIQUE (email)
+);
+
+CREATE TABLE categories (
+	id INT PRIMARY KEY,
+	name VARCHAR(64) NOT NULL,
+	title VARCHAR(128) NOT NULL,
+	created_at TIMESTAMP DEFAULT SYSDATE NOT NULL,
+	updated_at TIMESTAMP DEFAULT SYSDATE NOT NULL,
+	visible NUMBER(1,0) DEFAULT 0 NOT NULL
+);
+
+CREATE TABLE tags (
+	id INT PRIMARY KEY,
+	name VARCHAR(64) NOT NULL,
+	taggings_count INT DEFAULT 0 NOT NULL
+);
+
+CREATE TABLE content_formats (
+	id INT PRIMARY KEY,
+	created_at TIMESTAMP DEFAULT SYSDATE NOT NULL,
+	updated_at TIMESTAMP DEFAULT SYSDATE NOT NULL,
+	text_align NUMBER(2,0) DEFAULT 1 NOT NULL,
+	title_color INT DEFAULT 0 NOT NULL,
+	title_background_color INT DEFAULT 0 NOT NULL,
+	author_color INT DEFAULT 205 NOT NULL,
+	category_color INT DEFAULT 16711680 NOT NULL,
+	background_color INT DEFAULT 16777215 NOT NULL,
+	background_image VARCHAR(256)
+);
+
+CREATE TABLE contents (
+	id INT PRIMARY KEY,
+	title VARCHAR(64) NOT NULL,
+	created_at TIMESTAMP DEFAULT SYSDATE NOT NULL,
+	updated_at TIMESTAMP DEFAULT SYSDATE NOT NULL,
+	content VARCHAR(2048) NOT NULL,
+	published NUMBER(1,0) DEFAULT 0 NOT NULL,
+	published_at TIMESTAMP,
+	repost_count INT NOT NULL,
+	category_id INT NOT NULL REFERENCES categories,
+	content_format_id INT NOT NULL REFERENCES content_formats
+);
+
+CREATE TABLE taggings (
+	id INT PRIMARY KEY,
+	created_at TIMESTAMP DEFAULT SYSDATE NOT NULL,
+	tag_id INT NOT NULL REFERENCES tags,
+	content_id INT REFERENCES contents
+);
+
+CREATE TABLE personalities (
+	id INT PRIMARY KEY,
+	created_at TIMESTAMP DEFAULT SYSDATE NOT NULL,
+	updated_at TIMESTAMP DEFAULT SYSDATE NOT NULL,
+	admin NUMBER(1,0) DEFAULT 1 NOT NULL,
+	content_id INT REFERENCES contents,
+	user_id INT NOT NULL REFERENCES users
+);
+
+CREATE TABLE images (
+	id INT PRIMARY KEY,
+	created_at TIMESTAMP DEFAULT SYSDATE NOT NULL,
+	updated_at TIMESTAMP DEFAULT SYSDATE NOT NULL,
+	file_name VARCHAR(256) NOT NULL,
+	content_type VARCHAR(64) NOT NULL,
+	photographer VARCHAR(128) NOT NULL,
+	location VARCHAR(128) NOT NULL,
+	content_id INT NOT NULL REFERENCES contents
+);
+
+CREATE TABLE infografics (
+	id INT PRIMARY KEY,
+	html CLOB,
+	content_id INT NOT NULL REFERENCES contents
+);
+
+
+CREATE TABLE places (
+	id INT PRIMARY KEY,
+	created_at TIMESTAMP DEFAULT SYSDATE NOT NULL,
+	updated_at TIMESTAMP DEFAULT SYSDATE NOT NULL,
+	place_type INT DEFAULT 0 NOT NULL,
+	content_type VARCHAR(64) NOT NULL,
+	content_id INT NOT NULL REFERENCES contents
+);
+
+CREATE TABLE pages (
+	id INT PRIMARY KEY,
+	title VARCHAR(256) NOT NULL,
+	content_id INT NOT NULL REFERENCES contents
+);
+
+CREATE TABLE banners (
+	id INT PRIMARY KEY,
+	created_at TIMESTAMP DEFAULT SYSDATE NOT NULL,
+	updated_at TIMESTAMP DEFAULT SYSDATE NOT NULL,
+	name VARCHAR(128) NOT NULL,
+	images VARCHAR(256) NOT NULL,
+	link VARCHAR(256) NOT NULL,
+	height INT NOT NULL,
+	content_id INT NOT NULL REFERENCES contents
+);
+
+CREATE TABLE news (
+	id INT PRIMARY KEY,
+	created_at TIMESTAMP DEFAULT SYSDATE NOT NULL,
+	updated_at TIMESTAMP DEFAULT SYSDATE NOT NULL,
+	title VARCHAR(256) NOT NULL,
+	body VARCHAR(2048) NOT NULL,
+	photo VARCHAR(256) NOT NULL,
+	published_at TIMESTAMP DEFAULT SYSDATE NOT NULL,
+	views INT DEFAULT 0 NOT NULL,
+	repost_count INT DEFAULT 0 NOT NULL,
+	content_id INT NOT NULL REFERENCES contents
+);
