@@ -1,5 +1,9 @@
 package models
 
+const (
+	tagfields = "tags.id, tags.name, tags.taggings_count"
+)
+
 // Tag -main tag struct
 type Tag struct {
 	ID    int64  `json:"id"`
@@ -15,7 +19,7 @@ func (c *Client) TagCreate(tag *Tag) error {
 
 // Tags - list all tags
 func (c *Client) Tags() (tags []Tag, err error) {
-	rows, err := c.oracle.Query("select id, name, taggings_count from tags")
+	rows, err := c.oracle.Query("select " + tagfields + " from tags")
 	if err != nil {
 		return nil, err
 	}

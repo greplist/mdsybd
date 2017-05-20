@@ -3,7 +3,7 @@ package models
 import "time"
 
 const (
-	categoryfields = "id, created_at, updated_at, name, visible"
+	categoryfields = "categories.id, categories.created_at, categories.updated_at, categories.name, categories.visible"
 )
 
 // Category - main struct for category model

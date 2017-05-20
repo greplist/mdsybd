@@ -3,7 +3,7 @@ package models
 import "time"
 
 const (
-	userfields = "id, created_at, updated_at, name, email, role, encrypted_password"
+	userfields = "users.id, users.created_at, users.updated_at, users.name, users.email, users.role, users.encrypted_password"
 )
 
 // User - main struct for user model
