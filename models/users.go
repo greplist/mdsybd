@@ -59,3 +59,60 @@ func (c *Client) UserDelete(id int64) error {
 	_, err := c.oracle.Exec("DELETE FROM users where id = :1", id)
 	return err
 }
+
+// Personality - main struct for personality model
+type Personality struct {
+	ID        int64     `json:"id"`
+	CreatedAt time.Time `json:"created_at"`
+	UpdatedAt time.Time `json:"updated_at"`
+	Admin     int       `json:"is_admin"`
+	ContendID int64     `json:"content_id"`
+	UserID    int64     `json:"user_id"`
+}
+
+// CreatePersonality - create m2m relation beetwen user & content
+func (c *Client) CreatePersonality(p *Personality) error {
+	now := time.Now().UTC()
+	if p.CreatedAt.IsZero() {
+		p.CreatedAt = now
+	}
+	if p.UpdatedAt.IsZero() {
+		p.UpdatedAt = now
+	}
+	_, err := c.oracle.Exec(
+		"INSERT INTO personalities (id, created_at, updated_at, is_admin, content_id, user_id) "+
+			"VALUES (ids.nextval, :1, :2, :3, :4, :5)",
+		p.CreatedAt, p.UpdatedAt, p.Admin, p.ContendID, p.UserID,
+	)
+	return err
+}
+
+// Authors - returns authors by content id
+func (c *Client) Authors(content int64) (authors []string, err error) {
+	rows, err := c.oracle.Query(
+		" select users.name from users "+
+			" INNER JOIN personalities ON personalities.user_id = users.id "+
+			" INNER JOIN contents ON personalities.content_id = contents.id "+
+			" WHERE contents.id = :1 ",
+		content,
+	)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	authors = make([]string, 0, 32)
+
+	var author string
+	for rows.Next() {
+		rows.Scan(&author)
+		authors = append(authors, author)
+	}
+	return authors, rows.Err()
+}
+
+// DeletePersonality - delete m2m rekation beetwen user & content (drop author)
+func (c *Client) DeletePersonality(user, content int64) error {
+	_, err := c.oracle.Exec("DELETE FROM personalities where user_id = :1 and content_id = :2", user, content)
+	return err
+}

@@ -243,6 +243,22 @@ func (c *Client) ContentsSearch(category string, tags []string) (contents []Cont
 	return execContents(rows)
 }
 
+// ContentsByAuthor - select contents by author
+func (c *Client) ContentsByAuthor(author string) (contents []Content, err error) {
+	rows, err := c.oracle.Query("select "+contentfields+
+		" from contents "+
+		" INNER JOIN personalities ON personalities.contents_id = contents.id "+
+		" INNER JOIN users ON personalities.user_id = users.id "+
+		" where users.name = :1", author,
+	)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	return execContents(rows)
+}
+
 // ContentDelete delete content by id
 func (c *Client) ContentDelete(id int64) error {
 	_, err := c.oracle.Exec("DELETE FROM contents where id = :1", id)
