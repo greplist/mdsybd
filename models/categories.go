@@ -43,6 +43,24 @@ func (c *Client) Category(id int64) (category *Category, err error) {
 	return
 }
 
+// Categories - list all categories
+func (c *Client) Categories() (categories []Category, err error) {
+	rows, err := c.oracle.Query("select " + categoryfields + " from categories")
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	categories = make([]Category, 0, 128)
+
+	var category Category
+	for rows.Next() {
+		rows.Scan(&category.ID, &category.CreatedAt, &category.UpdatedAt, &category.Name, &category.Visible)
+		categories = append(categories, category)
+	}
+	return categories, rows.Err()
+}
+
 // CategoryByName - get category by name or email
 func (c *Client) CategoryByName(name string) (category *Category, err error) {
 	category = &Category{}
