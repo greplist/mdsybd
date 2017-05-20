@@ -11,7 +11,9 @@ DROP TABLE content_formats;
 DROP TABLE categories;
 DROP TABLE tags;
 DROP TABLE users;
+DROP SEQUENCE ids;
 
+CREATE SEQUENCE ids START WITH 1 INCREMENT BY 1;
 CREATE TABLE users (
 	id INT PRIMARY KEY,
 	created_at TIMESTAMP DEFAULT SYSDATE NOT NULL,
@@ -60,7 +62,7 @@ CREATE TABLE contents (
 	content VARCHAR(2048) NOT NULL,
 	published NUMBER(1,0) DEFAULT 0 NOT NULL,
 	published_at TIMESTAMP,
-	repost_count INT NOT NULL,
+	repost_count INT DEFAULT 0 NOT NULL,
 	category_id INT NOT NULL REFERENCES categories,
 	content_format_id INT NOT NULL REFERENCES content_formats
 );
