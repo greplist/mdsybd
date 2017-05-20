@@ -3,7 +3,7 @@ package models
 import "time"
 
 const (
-	fields = "id, created_at, updated_at, name, email, role, encrypted_password"
+	userfields = "id, created_at, updated_at, name, email, role, encrypted_password"
 )
 
 // User - main struct for user model
@@ -31,7 +31,7 @@ func (c *Client) UserCreate(user *User) error {
 	if user.UpdatedAt.IsZero() {
 		user.UpdatedAt = now
 	}
-	_, err := c.oracle.Exec("INSERT INTO users ("+fields+") VALUES (ids.nextval, :1, :2, :3, :4, :5, :6)",
+	_, err := c.oracle.Exec("INSERT INTO users ("+userfields+") VALUES (ids.nextval, :1, :2, :3, :4, :5, :6)",
 		user.CreatedAt, user.UpdatedAt, user.Name, user.Email)
 	return err
 }
@@ -39,7 +39,7 @@ func (c *Client) UserCreate(user *User) error {
 // User - get user by id
 func (c *Client) User(id int64) (u *User, err error) {
 	u = &User{}
-	err = c.oracle.QueryRow("select "+fields+" from users where id = :1", id).Scan(
+	err = c.oracle.QueryRow("select "+userfields+" from users where id = :1", id).Scan(
 		&u.ID, &u.CreatedAt, &u.UpdatedAt, &u.Name, &u.Email, &u.Role, &u.Password,
 	)
 	return
@@ -48,7 +48,7 @@ func (c *Client) User(id int64) (u *User, err error) {
 // UserByLogin - get user by name or email
 func (c *Client) UserByLogin(login string) (u *User, err error) {
 	u = &User{}
-	err = c.oracle.QueryRow("select "+fields+" from users where name = :1 or email = :1", login).Scan(
+	err = c.oracle.QueryRow("select "+userfields+" from users where name = :1 or email = :1", login).Scan(
 		&u.ID, &u.CreatedAt, &u.UpdatedAt, &u.Name, &u.Email, &u.Role, &u.Password,
 	)
 	return
