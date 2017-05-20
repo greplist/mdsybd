@@ -22,8 +22,8 @@ CREATE TABLE users (
 	email VARCHAR(128) NOT NULL,
 	role INT NOT NULL,
 	encrypted_password VARCHAR(256) NOT NULL,
-	CONSTRAINT name_uniq UNIQUE (name),
-	CONSTRAINT email_uniq UNIQUE (email)
+	CONSTRAINT user_name_uniq UNIQUE (name),
+	CONSTRAINT user_email_uniq UNIQUE (email)
 );
 
 CREATE TABLE categories (
@@ -32,13 +32,15 @@ CREATE TABLE categories (
 	title VARCHAR(128) NOT NULL,
 	created_at TIMESTAMP DEFAULT SYSDATE NOT NULL,
 	updated_at TIMESTAMP DEFAULT SYSDATE NOT NULL,
-	visible NUMBER(1,0) DEFAULT 0 NOT NULL
+	visible NUMBER(1,0) DEFAULT 0 NOT NULL,
+	CONSTRAINT category_name_uniq UNIQUE (name)
 );
 
 CREATE TABLE tags (
 	id INT PRIMARY KEY,
 	name VARCHAR(64) NOT NULL,
-	taggings_count INT DEFAULT 0 NOT NULL
+	taggings_count INT DEFAULT 0 NOT NULL,
+	CONSTRAINT tags_name_uniq UNIQUE (name)
 );
 
 CREATE TABLE content_formats (
