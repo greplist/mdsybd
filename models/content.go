@@ -212,6 +212,37 @@ func (c *Client) ContentsByCategory(name string) (contents []Content, err error)
 	return execContents(rows)
 }
 
+// ContentsByTags - select contents by tags
+func (c *Client) ContentsByTags(tags []string) (contents []Content, err error) {
+	rows, err := c.oracle.Query("select "+contentfields+
+		" from contents INNER JOIN taggings ON contents.id = taggings.content_id "+
+		" INNER JOIN tags ON tags.id = taggings.tag_id where tags.name IN (:1)", tags,
+	)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	return execContents(rows)
+}
+
+// ContentsSearch - select contents by topic and tags
+func (c *Client) ContentsSearch(category string, tags []string) (contents []Content, err error) {
+	rows, err := c.oracle.Query("select "+contentfields+
+		" from contents "+
+		" INNER JOIN categories ON categories.id = contents.category_id "+
+		" INNER JOIN taggings ON contents.id = taggings.content_id "+
+		" INNER JOIN tags ON tag.id = taggings.tag_id "+
+		" where categories.name = :1 and tags.name IN (:2)", category, tags,
+	)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	return execContents(rows)
+}
+
 // ContentDelete delete content by id
 func (c *Client) ContentDelete(id int64) error {
 	_, err := c.oracle.Exec("DELETE FROM contents where id = :1", id)

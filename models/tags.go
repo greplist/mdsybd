@@ -1,5 +1,7 @@
 package models
 
+import "time"
+
 const (
 	tagfields = "tags.id, tags.name, tags.taggings_count"
 )
@@ -44,5 +46,34 @@ func (c *Client) TagDelete(id int64) error {
 // TagDeleteByName - delete tag by name
 func (c *Client) TagDeleteByName(name string) error {
 	_, err := c.oracle.Exec("delete from tags where name = :1", name)
+	return err
+}
+
+const (
+	taggingfields = "taggings.id, taggings.created_at, taggings.tag_id, taggings.content_id"
+)
+
+// Tagging - main struct for taggings model
+type Tagging struct {
+	ID        int64     `json:"id"`
+	CreatedAt time.Time `json:"created_at"`
+	TagID     int64     `json:"tag_id"`
+	ContentID int64     `json:"content_id"`
+}
+
+// TaggingCreate - create m2m relation between tag and content (add tag to content)
+func (c *Client) TaggingCreate(t *Tagging) error {
+	if t.CreatedAt.IsZero() {
+		t.CreatedAt = time.Now().UTC()
+	}
+	_, err := c.oracle.Exec("INSERT INTO taggings ("+taggingfields+") VALUES (ids.nextval, :1, :2, :3)",
+		t.CreatedAt, t.TagID, t.ContentID,
+	)
+	return err
+}
+
+// TaggingDelete - delete m2m relation between tag and content (delete tag from content)
+func (c *Client) TaggingDelete(content int64, tag string) error {
+	_, err := c.oracle.Exec("delete from taggings where content_id = :1 and tag = :2", content, tag)
 	return err
 }
